@@ -1,0 +1,86 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yuntu.dao.stuInfo.StuInfoMapper">
+
+    <select id="getCount" resultType="int">
+        select count(1) from stuInfo;
+    </select>
+
+    <resultMap id="stuInfoMap" type="stuInfo">
+        <id property="stu_id" column="stu_id"/>
+        <result property="stu_name" column="stu_name"/>
+        <result property="stu_pwd" column="stu_pwd"/>
+        <result property="stu_age" column="stu_age"/>
+        <result property="stu_address" column="stu_address"/>
+        <result property="stu_major" column="stu_major"/>
+        <association property="sex" javaType="sex">
+            <id property="s_id" column="s_id"/>
+            <result property="s_sex" column="s_sex"/>
+        </association>
+    </resultMap>
+
+
+    <select id="getOne" resultMap="stuInfoMap">
+        select stu.* from stuInfo stu where stu_id =#{stu_id}
+    </select>
+
+    <select id="getPage" parameterType="PageUtil" resultMap="stuInfoMap">
+        SELECT * FROM
+        stuInfo stu INNER JOIN sex s
+        ON stu.stu_sex = s.s_id
+        LIMIT ${(pageindex-1)*pagesize},#{pagesize}
+    </select>
+
+    <insert id="addStuInfo" parameterType="StuInfo">
+        INSERT INTO stuInfo(
+            stu_name,
+            stu_pwd,
+            stu_sex,
+            stu_age,
+            stu_address,
+            stu_major
+        ) VALUES(
+            #{stu_name},
+            #{stu_pwd},
+            #{sex.s_id},
+            #{stu_age},
+            #{stu_address},
+            #{stu_major}
+        )
+    </insert>
+
+    <update id="updStuInfo" parameterType="StuInfo">
+        UPDATE stuInfo
+        <set>
+            <if test="stu_name!=null and stu_name!=''">
+                stu_name = #{stu_name},
+            </if>
+            <if test="stu_pwd!=null and stu_pwd!=''">
+                stu_pwd = #{stu_pwd},
+            </if>
+            <if test="sex.s_id!=null and sex.s_id!=0">
+                stu_sex = #{sex.s_id},
+            </if>
+            <if test="stu_age!=0 and stu_age!=null">
+                stu_age = #{stu_age},
+            </if>
+            <if test="stu_address!=null and stu_address!=''">
+                stu_address = #{stu_address},
+            </if>
+            <if test="stu_major!=null and stu_major!=''">
+                stu_major = #{stu_major}
+            </if>
+        </set>
+        <where>
+            <if test="stu_id!=0 and stu_id!=null">
+                stu_id = #{stu_id}
+            </if>
+        </where>
+    </update>
+
+    <delete id="delStuInfo" parameterType="int">
+        delete from stuInfo where stu_id=#{stu_id};
+    </delete>
+
+</mapper>
